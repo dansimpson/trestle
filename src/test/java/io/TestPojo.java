@@ -1,6 +1,7 @@
-package io.sprint.example;
+package io;
 
-public class ExamplePojo {
+
+public class TestPojo {
 	private int id;
 	private String name;
 	private String email;
