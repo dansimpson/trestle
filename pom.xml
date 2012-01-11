@@ -3,12 +3,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.trestle</groupId>
-  <artifactId>strestle</artifactId>
+  <artifactId>trestle</artifactId>
   <version>1.0</version>
   <packaging>jar</packaging>
 
   <name>trestle</name>
   <url>http://maven.apache.org</url>
+
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -39,6 +40,7 @@
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>2.5</version>
+      
     </dependency>
     
     <dependency>
@@ -53,6 +55,18 @@
         <version>1.6.4</version>
         <scope>test</scope>
     </dependency>
+    
+    <dependency>
+	<groupId>net.sourceforge.jregex</groupId>
+	<artifactId>jregex</artifactId>
+	<version>1.2_01</version>
+</dependency>
+
+    <dependency>
+	<groupId>com.asual.lesscss</groupId>
+	<artifactId>lesscss-engine</artifactId>
+	<version>1.1.5-SNAPSHOT</version>
+</dependency>
     
   </dependencies>
   

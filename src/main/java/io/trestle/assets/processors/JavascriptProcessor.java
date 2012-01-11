@@ -1,7 +1,11 @@
 package io.trestle.assets.processors;
 
-import io.trestle.assets.BundleProcessor;
 
-public class JavascriptProcessor extends BundleProcessor {
+public class JavascriptProcessor implements BundleProcessor {
+
+	@Override
+	public String process(String content) {
+		return content;
+	}
 
 }

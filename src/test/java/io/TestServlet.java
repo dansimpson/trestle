@@ -45,6 +45,14 @@ public class TestServlet extends TrestleServlet {
 		return result;
 	}
 	
+	@Trestle("/:file.:ext")
+	public Object filext(final TrestleRequest context) {
+		return new HashMap<String,String>() {{
+			put("file",context.get("file"));
+			put("ext",context.get("ext"));
+		}};
+	}
+	
 	@Trestle(value = "/:id", via = "put")
 	public Object update(TrestleRequest context) {
 		TestPojo result = new TestPojo();

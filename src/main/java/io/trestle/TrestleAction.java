@@ -1,19 +1,20 @@
 package io.trestle;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
+import jregex.MatchIterator;
+import jregex.Matcher;
+import jregex.Pattern;
+import jregex.Replacer;
 
 
 public class TrestleAction {
 
+	private static final Pattern splat = new Pattern(":([a-zA-Z0-9:-_]+)");
+	
 	private String via;
 	private Pattern route;
 	private String conditions;
@@ -21,40 +22,29 @@ public class TrestleAction {
 	
 	private LinkedList<String> names = new LinkedList<String>();
 	
-	public TrestleAction(String route, String via, Method method) {
+	public TrestleAction(String path, String via, Method method) {
 		
 		this.via = via.toLowerCase();
 		this.method = method;
 
-		if("".equals(route) || "/".equals(route)) {
-			this.route = Pattern.compile("^/$");
+		if("".equals(path) || "/".equals(path)) {
+			this.route = new Pattern("^/$");
 		} else {
+
+			String regex = path;
 			
-			String[] parts = route.split("/");
-			StringBuilder buf = new StringBuilder();
-			for(int i = 1;i < parts.length;i++) {
-				buf.append("/");
-				if(parts[i].isEmpty()) {
-					continue;
-				} else if(parts[i].startsWith(":")) {
-					names.addLast(parts[i].substring(1));
-					buf.append("([^/|$]+)");
-				} else {
-					buf.append(parts[i]);
-				}
+			Matcher m = splat.matcher(regex);
+			MatchIterator itr = m.findAll();
+			while(itr.hasMore()) {
+				names.add(itr.nextMatch().group(1));
 			}
-			this.route = Pattern.compile(buf.toString());
+			Replacer r = splat.replacer("([a-zA-Z0-9:-_]+)");
+
+			this.route = new Pattern("^" + r.replace(regex) + "$");
 		}
 	}
 	
-	/**
-	 * Match and mutate request
-	 * @param request
-	 * @return
-	 * @throws JsonGenerationException
-	 * @throws JsonMappingException
-	 * @throws IOException
-	 */
+
 	public boolean matches(HttpServletRequest request) {
 
 		if(!via.equalsIgnoreCase(request.getMethod())) {
@@ -67,11 +57,10 @@ public class TrestleAction {
 		}
 		
 		Matcher matcher = route.matcher(path);
-
-		// I am not exactly sure why groupCount is so broken...
-		if(matcher.find()) {
-			for(int i = 0;i < matcher.groupCount();i++) {
-				request.setAttribute(names.get(i), matcher.group(i+1));
+		if(matcher.matches()) {
+			String[] groups = matcher.groups();
+			for(int i = 1;i < groups.length;i++) {
+				request.setAttribute(names.get(i-1), groups[i]);
 			}
 			return true;
 		}

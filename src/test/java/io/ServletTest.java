@@ -71,6 +71,15 @@ public class ServletTest extends Base {
 		Assert.assertEquals("{\"id\":35,\"name\":\"name\",\"email\":\"email\"}", response.getContent());
 	}
 	
+	@Test
+	public void testFileExt() throws IOException, Exception {
+		HttpTester response = get("/tests/jquery.js");
+		Assert.assertTrue(response.getMethod()==null);
+		Assert.assertEquals(200, response.getStatus());
+		Assert.assertEquals("{\"file\":\"jquery\",\"ext\":\"js\"}", response.getContent());
+	}
+	
+	
 	@SuppressWarnings("serial")
 	@Test
 	public void testIdWithPut() throws IOException, Exception {
