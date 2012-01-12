@@ -15,7 +15,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 
-public class TrestleContext {
+public class Context {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	
@@ -29,7 +29,7 @@ public class TrestleContext {
 	private HttpServletRequest req;
 	private HttpServletResponse resp;
 	
-	public TrestleContext(HttpServletRequest request,
+	public Context(HttpServletRequest request,
 			HttpServletResponse response) {
 		super();
 		this.req = request;
@@ -52,7 +52,7 @@ public class TrestleContext {
 		return resp;
 	}
 	
-	public String get(String param) {
+	public String param(String param) {
 		Object result = req.getAttribute(param);
 		if(result != null) {
 			return result.toString();
@@ -61,7 +61,7 @@ public class TrestleContext {
 	}
 	
 	public Integer getInt(String param) {
-		return Integer.valueOf(get(param));
+		return Integer.valueOf(param(param));
 	}
 	
 	public String body() {
@@ -87,6 +87,8 @@ public class TrestleContext {
 		
 		return body;
 	}
+	
+	
 	
 	@SuppressWarnings("unchecked")
 	public Map<String,String> read() {

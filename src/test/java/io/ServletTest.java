@@ -8,6 +8,7 @@ import org.eclipse.jetty.util.UrlEncoded;
 import org.junit.Assert;
 import org.junit.Test;
 
+@SuppressWarnings("serial")
 public class ServletTest extends Base {
 
 	private HttpTester put(String path, String json) throws IOException, Exception {
@@ -95,8 +96,15 @@ public class ServletTest extends Base {
 		Assert.assertEquals("{\"file\":\"jquery\",\"ext\":\"js\"}", response.getContent());
 	}
 	
+	@Test
+	public void testString() throws IOException, Exception {
+		HttpTester response = get("/tests/stringy");
+		Assert.assertTrue(response.getMethod()==null);
+		Assert.assertEquals(200, response.getStatus());
+		Assert.assertEquals("Hello!", response.getContent());
+	}
 	
-	@SuppressWarnings("serial")
+
 	@Test
 	public void testIdWithPut() throws IOException, Exception {
 		HttpTester response = put("/tests/35", new MultiMap<String>() {{
@@ -108,7 +116,6 @@ public class ServletTest extends Base {
 		Assert.assertEquals("{\"id\":35,\"name\":\"dan\",\"email\":\"ds@moo.com\"}", response.getContent());
 	}
 	
-	@SuppressWarnings("serial")
 	@Test
 	public void testPutObject() throws IOException, Exception {
 		HttpTester response = put("/tests/35/json", "{\"id\":35,\"name\":\"dan\",\"email\":\"ds@moo.com\"}");

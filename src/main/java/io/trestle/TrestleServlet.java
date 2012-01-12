@@ -1,12 +1,18 @@
 package io.trestle;
 
-import io.trestle.annotation.Trestle;
+import io.trestle.annotation.Route;
+import io.trestle.response.ErrorResponse;
+import io.trestle.response.JsonResponse;
+import io.trestle.response.RawResponse;
+import io.trestle.response.Response;
+import io.trestle.response.StatusResponse;
+import io.trestle.response.StreamResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -15,104 +21,144 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 @SuppressWarnings("serial")
 public class TrestleServlet extends HttpServlet {
 
-	private static final Logger log = LoggerFactory.getLogger(TrestleServlet.class);
-	
-	private static final ObjectMapper mapper = new ObjectMapper();
-	
-	private List<TrestleAction> actions = new CopyOnWriteArrayList<TrestleAction>(); 
-	
-	public void before(TrestleContext context) {
+	private static final Logger log = LoggerFactory
+			.getLogger(TrestleServlet.class);
+
+	private List<Action> actions = new CopyOnWriteArrayList<Action>();
+
+	public void before(Context context) {
 		context.resp().setContentType("application/json");
 	}
-	
-	public void after(TrestleContext context) {
-	}
-	
-	public void getDefault(TrestleContext context) throws IOException {
-		context.resp().sendError(404, "Resource not found");
-	}
-	
-	@Override
-	protected void service(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		
-		TrestleContext context = new TrestleContext(request, response);
-		
-		before(context);
-		
-		for(TrestleAction action: actions) {
-			if(action.matches(request)) {
 
-				Object result = null;
-				
+	public void after(Context context) {
+	}
+
+	@Override
+	protected void service(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+
+		Context context = new Context(request, response);
+
+		for (Action action : actions) {
+			if (action.matches(request)) {
+
+				Response result = null;
+
+				before(context);
 				try {
-					result = action.getMethod().invoke(this, context);
-					
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
+					result = (Response) action.getMethod()
+							.invoke(this, context);
+					result.apply(response);
+				} catch (Throwable t) {
+					log.error(
+							"Error invoking trestle Action for "
+									+ request.getRequestURI(), t);
 				}
-				
-				OutputStream ostream = response.getOutputStream();
-				
-				// Check class of result... look for streams etc to
-				// do downloads or custom streaming
-				if(result instanceof InputStream) {
-					InputStream istream = (InputStream)result;
-					int b;
-					while ((b = istream.read()) != -1) {
-						ostream.write(b);
-					}
-					return;
-				} else if(result instanceof String) {
-					ostream.write(((String)result).getBytes());
-					return;
-				} else if(mapper.canSerialize(result.getClass())) {
-					mapper.writeValue(ostream, result);
-					return;
-				}
-				
-				log.debug("Route found but unknown type");
+				after(context);
+
+				break;
 			}
 		}
-
-		getDefault(context);
-		
-		after(context);
 	}
 
 	@Override
 	public void init() throws ServletException {
 		super.init();
-		for(Method m: getClass().getMethods()) {
-			Trestle match = m.getAnnotation(Trestle.class);
-			if(match == null) {
+
+		List<Action> tmp = new ArrayList<Action>();
+
+		for (Method m : getClass().getMethods()) {
+			Route match = m.getAnnotation(Route.class);
+			if (match == null) {
 				continue;
 			}
-			actions.add(new TrestleAction(match.value(), match.via(), m));
-			
-			log.info("Added route {} {}", match.via(), match.value());
+
+			if (m.getReturnType() != Response.class
+					|| m.getParameterTypes().length != 1
+					|| m.getParameterTypes()[0] != Context.class) {
+				log.error(
+						"Route {} does not resemble public Response method(Context context);",
+						match.value());
+				continue;
+			}
+
+			tmp.add(new Action(match.value(), match.via(), m));
+		}
+
+		Collections.sort(tmp);
+
+		actions.addAll(tmp);
+
+		for (Action action : actions) {
+			log.info("Added route {} {}", action.getPath(), action.getVia());
 		}
 	}
-	
-	protected Object status(int code) {
-		return code;
+
+	/**
+	 * An empty response with a status code
+	 * 
+	 * @param code
+	 * @return
+	 */
+	protected Response status(int code) {
+		return new StatusResponse(code);
 	}
-	
-	protected Object status(int code, String message) {
-		return code;
+
+	/**
+	 * A simple error message with code and message
+	 * 
+	 * @param code
+	 * @param message
+	 * @return
+	 */
+	protected Response error(int code, String message) {
+		return new ErrorResponse(code, message);
 	}
-	
+
+	/**
+	 * A json object resposne
+	 * 
+	 * @param object
+	 * @return
+	 */
+	protected Response json(Object object) {
+		return new JsonResponse(object);
+	}
+
+	/**
+	 * A stream response
+	 * 
+	 * @param stream
+	 * @return
+	 */
+	protected Response stream(InputStream stream) {
+		return new StreamResponse(stream);
+	}
+
+	/**
+	 * A byte array response
+	 * 
+	 * @param data
+	 * @return
+	 */
+	protected Response raw(byte[] data) {
+		return new RawResponse(data);
+	}
+
+	/**
+	 * A string response
+	 * 
+	 * @param data
+	 * @return
+	 */
+	protected Response raw(String data) {
+		return new RawResponse(data.getBytes());
+	}
 
 }

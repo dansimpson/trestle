@@ -28,7 +28,6 @@ public class Bundle {
 	private String cache;
 
 	private boolean cacheable = false;
-	private boolean compress = false;
 
 	private Set<String> patterns = new LinkedHashSet<String>();
 	private Set<ContentProcessor> processors = new LinkedHashSet<ContentProcessor>();

@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Trestle {
+public @interface Route {
 	String value() default "/";
 	String via() default "get";
 }

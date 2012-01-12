@@ -16,7 +16,7 @@ public class BundleTest extends Base {
 
 	@Test
 	public void testBundleRegistration() {
-		Bundle bundle = new Bundle("test");
+		new Bundle("test");
 		Assert.assertNotNull(Bundle.find("test"));
 	}
 	

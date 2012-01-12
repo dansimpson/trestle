@@ -11,19 +11,22 @@ import jregex.Pattern;
 import jregex.Replacer;
 
 
-public class TrestleAction {
+public class Action implements Comparable<Action> {
 
 	private static final Pattern splat = new Pattern(":([a-zA-Z0-9:-_]+)");
 	
+	private String path;
 	private String via;
 	private Pattern route;
 	private String conditions;
 	private Method method;
+	private Integer priority = 0;
 	
 	private LinkedList<String> names = new LinkedList<String>();
 	
-	public TrestleAction(String path, String via, Method method) {
+	public Action(String path, String via, Method method) {
 		
+		this.path = path;
 		this.via = via.toLowerCase();
 		this.method = method;
 
@@ -42,6 +45,8 @@ public class TrestleAction {
 
 			this.route = new Pattern("^" + r.replace(regex) + "$");
 		}
+		
+		priority = (names.size() * 100) + path.length();
 	}
 	
 
@@ -81,5 +86,25 @@ public class TrestleAction {
 	 */
 	public Method getMethod() {
 		return method;
+	}
+
+	/**
+	 * @return the path
+	 */
+	public String getPath() {
+		return path;
+	}
+
+	/**
+	 * @return the via
+	 */
+	public String getVia() {
+		return via;
+	}
+
+
+	@Override
+	public int compareTo(Action o) {
+		return priority.compareTo(o.priority);
 	}
 }
