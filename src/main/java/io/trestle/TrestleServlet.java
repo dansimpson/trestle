@@ -29,22 +29,22 @@ public class TrestleServlet extends HttpServlet {
 	
 	private List<TrestleAction> actions = new CopyOnWriteArrayList<TrestleAction>(); 
 	
-	public void before(TrestleRequest context) {
-		context.getResponse().setContentType("application/json");
+	public void before(TrestleContext context) {
+		context.resp().setContentType("application/json");
 	}
 	
-	public void after(TrestleRequest context) {
+	public void after(TrestleContext context) {
 	}
 	
-	public void getDefault(TrestleRequest context) throws IOException {
-		context.getResponse().sendError(404, "Resource not found");
+	public void getDefault(TrestleContext context) throws IOException {
+		context.resp().sendError(404, "Resource not found");
 	}
 	
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		TrestleRequest context = new TrestleRequest(request, response);
+		TrestleContext context = new TrestleContext(request, response);
 		
 		before(context);
 		

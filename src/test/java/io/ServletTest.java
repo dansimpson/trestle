@@ -10,6 +10,22 @@ import org.junit.Test;
 
 public class ServletTest extends Base {
 
+	private HttpTester put(String path, String json) throws IOException, Exception {
+		HttpTester request = new HttpTester();
+		HttpTester response = new HttpTester();
+		
+		request.setMethod("PUT");
+		request.setHeader("Host","tester");
+		request.setURI(path);
+		request.setHeader("Content-Type", "application/json");
+		request.setVersion("HTTP/1.1");
+		request.setContent(json);
+		
+		response.parse(testServer.getResponses(request.generate()));
+		
+		return response;
+	}
+	
 	private HttpTester put(String path, MultiMap<String> params) throws IOException, Exception {
 		HttpTester request = new HttpTester();
 		HttpTester response = new HttpTester();
@@ -87,6 +103,15 @@ public class ServletTest extends Base {
 			put("name","dan");
 			put("email", "ds@moo.com");
 		}});
+		Assert.assertTrue(response.getMethod()==null);
+		Assert.assertEquals(200, response.getStatus());
+		Assert.assertEquals("{\"id\":35,\"name\":\"dan\",\"email\":\"ds@moo.com\"}", response.getContent());
+	}
+	
+	@SuppressWarnings("serial")
+	@Test
+	public void testPutObject() throws IOException, Exception {
+		HttpTester response = put("/tests/35/json", "{\"id\":35,\"name\":\"dan\",\"email\":\"ds@moo.com\"}");
 		Assert.assertTrue(response.getMethod()==null);
 		Assert.assertEquals(200, response.getStatus());
 		Assert.assertEquals("{\"id\":35,\"name\":\"dan\",\"email\":\"ds@moo.com\"}", response.getContent());
