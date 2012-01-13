@@ -89,6 +89,14 @@ public class ServletTest extends Base {
 	}
 	
 	@Test
+	public void testIdView() throws IOException, Exception {
+		HttpTester response = get("/tests/35/view");
+		Assert.assertTrue(response.getMethod()==null);
+		Assert.assertEquals(200, response.getStatus());
+		Assert.assertEquals("{\"email\":\"email\"}", response.getContent());
+	}
+	
+	@Test
 	public void testFileExt() throws IOException, Exception {
 		HttpTester response = get("/tests/jquery.js");
 		Assert.assertTrue(response.getMethod()==null);

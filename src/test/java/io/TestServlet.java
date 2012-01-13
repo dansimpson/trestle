@@ -46,6 +46,15 @@ public class TestServlet extends TrestleServlet {
 		return json(result);
 	}
 	
+	@Route("/:id/view")
+	public Response view(final Context context) {
+		TestPojo result = new TestPojo();
+		result.setEmail("email");
+		result.setName("name");
+		result.setId(context.getInt("id"));
+		return json(result, TestPojo.EmailView.class);
+	}
+	
 	@Route("/:file.:ext")
 	public Response filext(final Context context) {
 		return json(new HashMap<String,String>() {{

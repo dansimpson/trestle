@@ -122,7 +122,17 @@ public class TrestleServlet extends HttpServlet {
 	}
 
 	/**
-	 * A json object resposne
+	 * A json object response
+	 * 
+	 * @param object
+	 * @return
+	 */
+	protected Response json(Object object, Class<?> view) {
+		return new JsonResponse(object, view);
+	}
+	
+	/**
+	 * A json object response with view
 	 * 
 	 * @param object
 	 * @return

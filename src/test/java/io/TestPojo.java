@@ -1,7 +1,12 @@
 package io;
 
+import org.codehaus.jackson.map.annotate.JsonView;
+
 
 public class TestPojo {
+	
+	public static class EmailView {}
+	
 	private int id;
 	private String name;
 	private String email;
@@ -32,6 +37,7 @@ public class TestPojo {
 	/**
 	 * @return the emailO
 	 */
+	@JsonView(EmailView.class)
 	public String getEmail() {
 		return email;
 	}

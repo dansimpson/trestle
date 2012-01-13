@@ -19,9 +19,15 @@ public class JsonResponse implements Response {
 	}
 	
 	private Object data;
+	private Class<?> view;
 	
 	public JsonResponse(Object data) {
 		this.data = data;
+	}
+	
+	public JsonResponse(Object data, Class<?> view) {
+		this.data = data;
+		this.view = view;
 	}
 	
 	
@@ -33,7 +39,13 @@ public class JsonResponse implements Response {
 		
 		try {
 			OutputStream ostream = response.getOutputStream();
-			mapper.writeValue(ostream, data);
+			
+        	if(view != null) {
+        		mapper.writerWithView(view).writeValue(ostream, data);
+        	} else {
+        		mapper.writeValue(ostream, data);
+        	}
+        	
 			ostream.flush();
 			ostream.close();
 		} catch (Throwable t) {
