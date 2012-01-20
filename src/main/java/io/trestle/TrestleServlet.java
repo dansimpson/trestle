@@ -59,6 +59,9 @@ public class TrestleServlet extends HttpServlet {
 					log.error(
 							"Error invoking trestle Action for "
 									+ request.getRequestURI(), t);
+					
+					// Bad request
+					new ErrorResponse(400, t.getMessage()).apply(response);
 				}
 				after(context);
 
@@ -96,7 +99,7 @@ public class TrestleServlet extends HttpServlet {
 		actions.addAll(tmp);
 
 		for (Action action : actions) {
-			log.info("Added route {} {}", action.getPath(), action.getVia());
+			log.debug("Added route {} {}", action.getPath(), action.getVia());
 		}
 	}
 

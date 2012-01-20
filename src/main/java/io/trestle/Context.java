@@ -14,6 +14,7 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.type.TypeReference;
 
 public class Context {
 
@@ -96,6 +97,19 @@ public class Context {
 	}
 	
 	public <T> T read(Class<T> t) {
+		try {
+			return mapper.readValue(body(), t);
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public <T> T read(TypeReference<T> t) {
 		try {
 			return mapper.readValue(body(), t);
 		} catch (JsonParseException e) {

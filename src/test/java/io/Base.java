@@ -1,6 +1,7 @@
 package io;
 
 import org.eclipse.jetty.testing.ServletTester;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 public class Base {
@@ -12,5 +13,10 @@ public class Base {
 		testServer.setContextPath("/");
 		testServer.addServlet(TestServlet.class, "/tests/*");
 		testServer.start();
+	}
+	
+	@AfterClass
+	public static void teardown() throws Exception {
+		testServer.stop();
 	}
 }
