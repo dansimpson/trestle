@@ -9,7 +9,7 @@ Inspired by Sinatra, the rails asset pipeline, and modern javascript micro-frame
 * YUI Compressor support
 * Asset servlet for serving processed assets
 
-## Servlet example
+## Example Restful Servlet
 The below example shows a simple resource servlet that deals with json.
 
 ```java
@@ -106,7 +106,7 @@ public class PairServlet extends TrestleServlet {
 Creating bundles is fairly simple.  Set the root directory, add paths (globs or eglobs work),
 and optionally add processors.
 
-# Example: Vendor Javascript Bundle
+### Example: Vendor Javascript Bundle
 Create bundle and add all files in the javascripts/vendor directory, with
 some explicit ordering.
 
@@ -123,11 +123,12 @@ if(production) {
 ```
 
 Including vendor.js:
+
 ```html
 <script src="/assets/vendor.js" type="text/javascript"></script>
 ```
 
-# Example: Create a Template Bundle
+### Example: Create a Template Bundle
 Trestle can wrap your templates and combine them into a single
 file to simplify client-side template processing.
 
@@ -139,16 +140,18 @@ templates.addProcessor(new TemplateProcessor("Tpls"));
 ```
 
 Including the templates:
+
 ```html
 <script src="/assets/templates.mustache" type="text/javascript"></script>
 ```
 
 Accessing the templates:
+
 ```javascript
 var output = Mustache.render(Tpls["pairs/index.mustache"], context);
 ```
 
-# Example: LessCSS Bundle
+### Example: LessCSS Bundle
 
 ```java
 Bundle styles = new Bundle("styles");
