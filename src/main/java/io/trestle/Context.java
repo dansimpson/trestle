@@ -16,6 +16,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.type.TypeReference;
 
+/**
+ * The context given to all actions.
+ * 
+ * @author dan
+ *
+ */
 public class Context {
 
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -53,18 +59,59 @@ public class Context {
 		return resp;
 	}
 	
-	public String param(String param) {
-		Object result = req.getAttribute(param);
+	/**
+	 * Get a request param by name
+	 * @param name the name of the paramter
+	 * @return the value as a string or null
+	 */
+	public String param(String name) {
+		Object result = req.getAttribute(name);
 		if(result != null) {
 			return result.toString();
 		}
-		return req.getParameter(param);
+		return req.getParameter(name);
 	}
 	
-	public Integer getInt(String param) {
-		return Integer.valueOf(param(param));
+	/**
+	 * Get a request param as an integer
+	 * @param name the name of the parameter
+	 * @return the value
+	 */
+	public Integer paramAsInt(String name) {
+		return Integer.valueOf(param(name));
 	}
 	
+	/**
+	 * Get a request param as a long
+	 * @param name the name of the parameter
+	 * @return the value
+	 */
+	public Long paramAsLong(String name) {
+		return Long.valueOf(param(name));
+	}
+	
+	/**
+	 * Get a request param as a double
+	 * @param name the name of the parameter
+	 * @return the value
+	 */
+	public Double paramAsDouble(String name) {
+		return Double.valueOf(param(name));
+	}
+	
+	/**
+	 * Get a request param as a float
+	 * @param name the name of the parameter
+	 * @return the value
+	 */
+	public Float paramAsFloat(String name) {
+		return Float.valueOf(param(name));
+	}
+	
+	/**
+	 * Read the body of the request
+	 * @return
+	 */
 	public String body() {
 		
 		if(body != null) {
@@ -92,10 +139,20 @@ public class Context {
 	
 	
 	@SuppressWarnings("unchecked")
+	/**
+	 * Read the body into a map (assuming JSON content)
+	 * @return
+	 */
 	public Map<String,String> read() {
 		return read(Map.class);
 	}
 	
+	/**
+	 * Read the body and deserialize into a known type
+	 * Assumes JSON content
+	 * @param t the class to create
+	 * @return an instance of t
+	 */
 	public <T> T read(Class<T> t) {
 		try {
 			return mapper.readValue(body(), t);
@@ -109,6 +166,12 @@ public class Context {
 		return null;
 	}
 	
+	/**
+	 * Read the body and deserialize into a known type
+	 * Assumes JSON content
+	 * @param t the class to create
+	 * @return an instance of t
+	 */
 	public <T> T read(TypeReference<T> t) {
 		try {
 			return mapper.readValue(body(), t);

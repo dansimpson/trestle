@@ -87,11 +87,11 @@ public class TrestleServlet extends HttpServlet {
 					|| m.getParameterTypes()[0] != Context.class) {
 				log.error(
 						"Route {} does not resemble public Response method(Context context);",
-						match.value());
+						match.match());
 				continue;
 			}
 
-			tmp.add(new Action(match.value(), match.via(), m));
+			tmp.add(new Action(match.match(), match.via(), m));
 		}
 
 		Collections.sort(tmp);
