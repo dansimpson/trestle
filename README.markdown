@@ -162,6 +162,7 @@ styles.addProcessor(new LessProcessor(false));
 ```
 
 Including the templates:
+
 ```html
 <script src="/assets/styles.less" type="text/javascript"></script>
 ```
