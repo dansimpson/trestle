@@ -1,5 +1,5 @@
 # Trestle
-Inspired by Sinatra, the rails asset pipeline, and modern javascript micro-frameworks such as backbone, Trestle bridges the gap between your backend services and your html5/javascript applications.
+Inspired by Sinatra, Sprockets, and modern Javascript micro-frameworks such as Backbone.js, Trestle bridges the gap between your backend services and your html5/javascript applications.
 
 ## Features
 * Annotation based routing for servlets
