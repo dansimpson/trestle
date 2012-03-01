@@ -10,7 +10,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -214,8 +213,8 @@ public class Bundle {
 	 * Find all files that match any patterns
 	 * @return
 	 */
-	private List<File> glob() {
-		List<File> assets = new LinkedList<File>();
+	private Set<File> glob() {
+		Set<File> assets = new LinkedHashSet<File>();
 		for (String glob : patterns) {
 			assets.addAll(BundleUtil.eglob(root + "/" + glob));
 		}
