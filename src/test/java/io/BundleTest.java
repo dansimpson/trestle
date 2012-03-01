@@ -9,6 +9,7 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.eclipse.jetty.util.log.Log;
 import org.junit.Test;
 
 
@@ -31,6 +32,11 @@ public class BundleTest extends Base {
 
 		Assert.assertEquals(3, assets.size());
 		Assert.assertEquals("/deep/test.js", assets.get(0));
+		Assert.assertEquals("/deep/deep/test.js", assets.get(1));
+		Assert.assertEquals("/deep/deep/deep/test.js", assets.get(2));
+		
+		byte[] bytes = bundle.process().getBytes();
+				
 		Assert.assertEquals("!d\n!dd\n!ddd\n", bundle.process());
 	}
 	

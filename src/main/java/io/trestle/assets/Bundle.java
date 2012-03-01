@@ -5,10 +5,12 @@ import io.trestle.assets.processors.ContentProcessor;
 import io.trestle.assets.processors.FileProcessor;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -114,8 +116,8 @@ public class Bundle {
 	 */
 	public List<String> getAssetList() {
 		List<String> assets = new ArrayList<String>();
-		for (String asset : glob()) {
-			assets.add(filename(asset));
+		for (File asset : glob()) {
+			assets.add(filename(asset.getPath()));
 		}
 		return assets;
 	}
@@ -146,7 +148,7 @@ public class Bundle {
 	private String combine() throws IOException {
 		StringBuilder buffer = new StringBuilder();
 		
-		for (String file : glob()) {
+		for (File file : glob()) {
 			
 			FileInputStream istream = new FileInputStream(file);
 			ByteArrayOutputStream ostream = new ByteArrayOutputStream();
@@ -162,10 +164,10 @@ public class Bundle {
 				ostream.close();
 			}
 			
-			buffer.append(process(filename(file), new String(ostream.toByteArray(), "UTF8")));
+			buffer.append(process(filename(file.getPath()), new String(ostream.toByteArray(), "UTF8")));
 		}
 
-		return buffer.toString();
+		return buffer.toString().replaceAll("\r", "");
 	}
 
 	/**
@@ -212,8 +214,8 @@ public class Bundle {
 	 * Find all files that match any patterns
 	 * @return
 	 */
-	private Set<String> glob() {
-		Set<String> assets = new LinkedHashSet<String>();
+	private List<File> glob() {
+		List<File> assets = new LinkedList<File>();
 		for (String glob : patterns) {
 			assets.addAll(BundleUtil.eglob(root + "/" + glob));
 		}
