@@ -45,29 +45,33 @@ public class TrestleServlet extends HttpServlet {
 
 		Context context = new Context(request, response);
 
+		Response result = null;
+		
 		for (Action action : actions) {
 			if (action.matches(request)) {
-
-				Response result = null;
 
 				before(context);
 				try {
 					result = (Response) action.getMethod()
 							.invoke(this, context);
-					result.apply(response);
 				} catch (Throwable t) {
 					log.error(
 							"Error invoking trestle Action for "
 									+ request.getRequestURI(), t);
-					
-					// Bad request
-					new ErrorResponse(400, t.getMessage()).apply(response);
+
+					result = new ErrorResponse(400, t.getMessage());
 				}
 				after(context);
 
 				break;
 			}
 		}
+		
+		if(result == null) {
+			result = new ErrorResponse(404, "Not found");
+		}
+		
+		result.apply(response);
 	}
 
 	@Override
