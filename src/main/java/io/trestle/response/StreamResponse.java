@@ -10,8 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class StreamResponse implements Response {
 
-	public static final Logger log = LoggerFactory
-			.getLogger(StreamResponse.class);
+	public static final Logger log = LoggerFactory.getLogger(StreamResponse.class);
 
 	private InputStream istream;
 

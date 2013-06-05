@@ -1,6 +1,5 @@
 package io.trestle.assets.processors;
 
-
 public class JavascriptProcessor implements BundleProcessor {
 
 	@Override

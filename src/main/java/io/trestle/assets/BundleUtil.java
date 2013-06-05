@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class BundleUtil {
 
 	private static Logger log = LoggerFactory.getLogger(Bundle.class);
-	
+
 	public static List<File> hierarchy(File root) {
 
 		LinkedList<File> result = new LinkedList<File>();
@@ -25,7 +25,7 @@ public class BundleUtil {
 
 		if (root.isDirectory()) {
 			File[] children = root.listFiles();
-			if(children != null) {
+			if (children != null) {
 				for (File child : children) {
 					result.addAll(hierarchy(child));
 				}
@@ -42,8 +42,7 @@ public class BundleUtil {
 		String base = path.replace("//", "/");
 		String root = slap(base.split("/"));
 
-		base = base.replace("**/", "[[\\w\\d\\-\\_]+/]~~~")
-				.replace("*.", ".+\\.").replace("*", ".+").replace("~~~", "*");
+		base = base.replace("**/", "[[\\w\\d\\-\\_]+/]~~~").replace("*.", ".+\\.").replace("*", ".+").replace("~~~", "*");
 
 		Pattern regex = Pattern.compile(base);
 
@@ -58,6 +57,7 @@ public class BundleUtil {
 
 		// Sort based on depth
 		Collections.sort(result, new Comparator<File>() {
+
 			@Override
 			public int compare(File f1, File f2) {
 				String p1 = f1.getPath().replace('\\', '/');
@@ -67,14 +67,14 @@ public class BundleUtil {
 				return l1.compareTo(l2);
 			}
 		});
-		
-		if(log.isDebugEnabled()) {
+
+		if (log.isDebugEnabled()) {
 			log.debug("Built Bundle");
-			for(File f: result) {
+			for (File f : result) {
 				log.debug(f.getPath());
 			}
 		}
-		
+
 		return result;
 	}
 

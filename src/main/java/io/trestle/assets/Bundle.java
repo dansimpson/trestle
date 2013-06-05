@@ -12,20 +12,23 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Represents a bundle of assets, such as javascript, javascript templates,
- * coffescripts, CSS, LessCSS, etc.
+ * Represents a bundle of assets, such as javascript, javascript templates, coffescripts, CSS, LessCSS, etc.
  * 
  * @author dan
  * 
  */
-public class Bundle {
+public class Bundle implements Content {
+
+	private static final Logger log = LoggerFactory.getLogger(Bundle.class);
 
 	private String root = "";
-	private String name;
+	private final String name;
+	private final String contentType;
 	private String cache;
 
 	private boolean cacheable = false;
@@ -33,9 +36,9 @@ public class Bundle {
 	private Set<String> patterns = new LinkedHashSet<String>();
 	private Set<ContentProcessor> processors = new LinkedHashSet<ContentProcessor>();
 
-	public Bundle(String name) {
+	public Bundle(String name, String contentType) {
 		this.name = name;
-		register(this);
+		this.contentType = contentType;
 	}
 
 	/**
@@ -54,7 +57,7 @@ public class Bundle {
 
 	/**
 	 * @param root
-	 *            the root to set
+	 *          the root to set
 	 */
 	public void setRoot(String root) {
 		this.root = root;
@@ -69,7 +72,7 @@ public class Bundle {
 
 	/**
 	 * @param patterns
-	 *            the patterns to set
+	 *          the patterns to set
 	 */
 	public void setPatterns(Set<String> patterns) {
 		this.patterns = patterns;
@@ -78,22 +81,23 @@ public class Bundle {
 	public void addProcessor(ContentProcessor processor) {
 		processors.add(processor);
 	}
-	
+
 	/**
 	 * Add a path to the file scanner
+	 * 
 	 * @param glob
 	 */
 	public void addPath(String glob) {
 		patterns.add(glob);
 	}
-	
+
 	/**
 	 * Enable caching for the bundle
 	 */
 	public void enableCaching() {
 		cacheable = true;
 	}
-	
+
 	/**
 	 * Disable caching for the bundle
 	 */
@@ -101,7 +105,7 @@ public class Bundle {
 		cacheable = false;
 		cache = null;
 	}
-	
+
 	/**
 	 * Clear the cache
 	 */
@@ -111,6 +115,7 @@ public class Bundle {
 
 	/**
 	 * Get a list of all assets found for this bundle
+	 * 
 	 * @return
 	 */
 	public List<String> getAssetList() {
@@ -120,35 +125,34 @@ public class Bundle {
 		}
 		return assets;
 	}
-	
+
 	/**
-	 * Process the bundle, by collecting all files
-	 * that match any of the given patterns, processing
-	 * each of those with all processors.  Then combining the
-	 * result of each processed file, and processing the combined
-	 * result.
+	 * Process the bundle, by collecting all files that match any of the given patterns, processing each of those with all processors. Then
+	 * combining the result of each processed file, and processing the combined result.
+	 * 
 	 * @return
 	 * @throws IOException
 	 */
 	public String process() throws IOException {
-	    if (cacheable) {
-	      if (cache == null) {
-	    	  cache = process(combine());
-	      }
-	      return cache;
-	    }
-	    return process(combine());
+		if (cacheable) {
+			if (cache == null) {
+				cache = process(combine());
+			}
+			return cache;
+		}
+		return process(combine());
 	}
 
 	/**
 	 * Concatenate all files, processing each individually if needed
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 */
 	private String combine() throws IOException {
 		StringBuilder buffer = new StringBuilder();
-		
+
 		for (File file : glob()) {
-			
+
 			FileInputStream istream = new FileInputStream(file);
 			ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
@@ -162,8 +166,9 @@ public class Bundle {
 				istream.close();
 				ostream.close();
 			}
-			
+
 			buffer.append(process(filename(file.getPath()), new String(ostream.toByteArray(), "UTF8")));
+			buffer.append("\n");
 		}
 
 		return buffer.toString().replaceAll("\r", "");
@@ -171,37 +176,40 @@ public class Bundle {
 
 	/**
 	 * Process content for a single file
+	 * 
 	 * @param path
 	 * @param content
 	 * @return
 	 */
 	private String process(String path, String content) {
 		String result = content;
-		for(ContentProcessor p: processors) {
-			if(p instanceof FileProcessor) {
-				result = ((FileProcessor)p).process(path, result);
+		for (ContentProcessor p : processors) {
+			if (p instanceof FileProcessor) {
+				result = ((FileProcessor) p).process(path, result);
 			}
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Process combined content
+	 * 
 	 * @param content
 	 * @return
 	 */
 	private String process(String content) {
 		String result = content;
-		for(ContentProcessor p: processors) {
-			if(p instanceof BundleProcessor) {
-				result = ((BundleProcessor)p).process(result);
+		for (ContentProcessor p : processors) {
+			if (p instanceof BundleProcessor) {
+				result = ((BundleProcessor) p).process(result);
 			}
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Strip off the root path
+	 * 
 	 * @param path
 	 * @return
 	 */
@@ -211,6 +219,7 @@ public class Bundle {
 
 	/**
 	 * Find all files that match any patterns
+	 * 
 	 * @return
 	 */
 	private Set<File> glob() {
@@ -221,50 +230,19 @@ public class Bundle {
 		return assets;
 	}
 
-	/**
-	 * 
-	 * ***************************** Static Helpers
-	 * 
-	 * *****************************
-	 * 
-	 */
-
-	private static final ConcurrentHashMap<String, Bundle> map = new ConcurrentHashMap<String, Bundle>();
-
-	/**
-	 * Register a bundle by name
-	 * 
-	 * @param group
-	 */
-	public static void register(Bundle group) {
-		map.put(group.getName(), group);
+	@Override
+	public String getContent() {
+		try {
+			return process();
+		} catch (IOException e) {
+			log.debug("Error processing content for bundle {}", name);
+		}
+		return "";
 	}
 
-	/**
-	 * Development mode flag, disables compression and caching when set to true.
-	 */
-	public static boolean development = true;
-
-	/**
-	 * Find a bundle by name
-	 * 
-	 * @param name
-	 *            the name of the satchel
-	 * @return the satchel object
-	 */
-	public static Bundle find(String name) {
-		return map.get(name);
-	}
-
-	/**
-	 * Determine if a bundle exists
-	 * 
-	 * @param name
-	 *            the name of the satchel
-	 * @return true if the satchel exists
-	 */
-	public static boolean exists(String name) {
-		return map.containsKey(name);
+	@Override
+	public String getContentType() {
+		return contentType;
 	}
 
 }

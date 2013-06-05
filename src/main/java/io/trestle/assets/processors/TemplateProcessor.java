@@ -7,11 +7,10 @@ public class TemplateProcessor implements FileProcessor, BundleProcessor {
 	public TemplateProcessor(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public String process(String path, String content) {
-		return name + "[\"" + path.replace('\\', '/') + "\"]=\""
-				+ clean(content) + "\";";
+		return name + "[\"" + path.replace('\\', '/') + "\"]=\"" + clean(content) + "\";";
 	}
 
 	@Override
@@ -20,7 +19,6 @@ public class TemplateProcessor implements FileProcessor, BundleProcessor {
 	}
 
 	private String clean(String content) {
-		return content.replaceAll("\"", "\\\\\"").replaceAll(">\\s+<", "><")
-				.replaceAll("\n", "");
+		return content.replaceAll("\"", "\\\\\"").replaceAll(">\\s+<", "><").replaceAll("\n", "");
 	}
 }

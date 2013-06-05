@@ -27,8 +27,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public class TrestleServlet extends HttpServlet {
 
-	private static final Logger log = LoggerFactory
-			.getLogger(TrestleServlet.class);
+	private static final Logger log = LoggerFactory.getLogger(TrestleServlet.class);
 
 	private List<Action> actions = new CopyOnWriteArrayList<Action>();
 
@@ -40,24 +39,20 @@ public class TrestleServlet extends HttpServlet {
 	}
 
 	@Override
-	protected void service(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		Context context = new Context(request, response);
 
 		Response result = null;
-		
+
 		for (Action action : actions) {
 			if (action.matches(request)) {
 
 				before(context);
 				try {
-					result = (Response) action.getMethod()
-							.invoke(this, context);
+					result = (Response) action.getMethod().invoke(this, context);
 				} catch (Throwable t) {
-					log.error(
-							"Error invoking trestle Action for "
-									+ request.getRequestURI(), t);
+					log.error("Error invoking trestle Action for " + request.getRequestURI(), t);
 
 					result = new ErrorResponse(400, t.getMessage());
 				}
@@ -66,11 +61,11 @@ public class TrestleServlet extends HttpServlet {
 				break;
 			}
 		}
-		
-		if(result == null) {
+
+		if (result == null) {
 			result = new ErrorResponse(404, "Not found");
 		}
-		
+
 		result.apply(response);
 	}
 
@@ -86,12 +81,9 @@ public class TrestleServlet extends HttpServlet {
 				continue;
 			}
 
-			if (m.getReturnType() != Response.class
-					|| m.getParameterTypes().length != 1
-					|| m.getParameterTypes()[0] != Context.class) {
-				log.error(
-						"Route {} does not resemble public Response method(Context context);",
-						match.match());
+			if (m.getReturnType() != Response.class || m.getParameterTypes().length != 1
+			    || m.getParameterTypes()[0] != Context.class) {
+				log.error("Route {} does not resemble public Response method(Context context);", match.match());
 				continue;
 			}
 
@@ -137,7 +129,7 @@ public class TrestleServlet extends HttpServlet {
 	protected Response json(Object object, Class<?> view) {
 		return new JsonResponse(object, view);
 	}
-	
+
 	/**
 	 * A json object response with view
 	 * 
