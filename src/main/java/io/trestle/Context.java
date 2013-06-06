@@ -1,8 +1,8 @@
 package io.trestle;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,8 +31,6 @@ public class Context {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
 	}
-
-	private String body;
 
 	private HttpServletRequest req;
 	private HttpServletResponse resp;
@@ -123,28 +121,24 @@ public class Context {
 	 * 
 	 * @return
 	 */
-	public String body() {
-
-		if (body != null) {
-			return body;
-		}
+	public byte[] body() {
 
 		try {
-			StringWriter writer = new StringWriter();
-			BufferedReader reader = req.getReader();
-			char[] buffer = new char[1024];
-			int len;
-			while ((len = reader.read(buffer, 0, buffer.length)) != -1) {
-				writer.write(buffer, 0, len);
+			InputStream is = req.getInputStream();
+			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+			int nRead;
+			byte[] data = new byte[16384];
+			while ((nRead = is.read(data, 0, data.length)) != -1) {
+				buffer.write(data, 0, nRead);
 			}
-			writer.close();
-			body = writer.toString();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			body = "";
+			buffer.flush();
+			return buffer.toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
-		return body;
+		return new byte[0];
 	}
 
 	@SuppressWarnings("unchecked")
@@ -165,7 +159,7 @@ public class Context {
 	 */
 	public <T> T read(Class<T> t) {
 		try {
-			return mapper.readValue(body(), t);
+			return mapper.readValue(req.getInputStream(), t);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
@@ -185,7 +179,7 @@ public class Context {
 	 */
 	public <T> T read(TypeReference<T> t) {
 		try {
-			return mapper.readValue(body(), t);
+			return mapper.readValue(req.getInputStream(), t);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
